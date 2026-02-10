@@ -1,0 +1,221 @@
+﻿
+<link rel="stylesheet" href="~/css/SideBar.css" />
+
+<!-- partial:../../partials/_sidebar.html -->
+<nav class="sidebar" id="sidebar">
+    <ul class="nav">
+        <li class="nav-item nav-profile">
+            <div class="profile-image">
+                <img class="img-lg" src="../../img/esfe.png" alt="profile image">
+            </div>
+        </li>
+        <li class="nav-item nav-category">BIBLIOTECA ESFE/AGAPE</li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="redireccionHome">
+                 <span class="menu-title">Inicio</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="redireccionBooks">
+                 <span class="menu-title">Libros</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="collapse" href="#submenu-gestionLibros" aria-expanded="false" aria-controls="submenu-gestionLibros">
+                <span class="menu-title">Gestión de libros</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="submenu-gestionLibros">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="redireccionCiudad">
+                             Ciudades
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="redireccionAutor">
+                             Autores
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="redireccionEditorial">
+                             Editoriales
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" data-toggle="collapse" href="#submenu-mas" aria-expanded="false" aria-controls="submenu-mas">
+                            <i class="fas fa-ellipsis-h"></i>
+                            <span class="menu-title">Más</span>
+                            <i class="menu-arrow"></i>
+                        </a>
+                        <div class="collapse" id="submenu-mas">
+                            <ul class="nav flex-column sub-menu">
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" id="redireccionEdicion">
+                                        Ediciones
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" id="redirecionCatalogo">
+                                         Catálogo
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" id="redirecionCategoria">
+                                         Categoría
+                                    </a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" href="#" id="redirecionTipoAd">
+                                         Tipo de adquisición
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="redireccionListaLoans">
+               <span class="menu-title">Préstamos de Estudiantes</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" asp-controller="LoansTeacher" asp-action="Index">
+                <span class="menu-title">Préstamos General</span>
+            </a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="collapse" href="#submenu-docente" aria-expanded="false" aria-controls="submenu-">
+                <span class="menu-title">Gestión General</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="submenu-docente">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" asp-controller="Personal" asp-action="Index">
+                            @* ⬅️ MODIFICACIÓN CLAVE: Usa Tag Helpers para el enrutamiento *@
+                            Crear Personal @* (Si quieres que te lleve al Index, pero mantienes este texto) *@
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="collapse" href="#submenu-prestamo" aria-expanded="false" aria-controls="submenu-prestamo">
+                <span class="menu-title">Gestión de Préstamo</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="submenu-prestamo">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="redireccionTipoLoan">
+                             Tipo de Préstamo
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="redireccionEsLoan">
+                             Estado del Préstamo
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="redireccionLDelite">
+                            Prestamos Eliminados
+                        </a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="redirectionRLoans">
+                            Exportar Prestamos
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="redireccionBlog">
+                 <span class="menu-title">Blog</span>
+            </a>
+        </li>
+
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="collapse" href="#submenu-blog" aria-expanded="false" aria-controls="submenu-blog">
+                <span class="menu-title">Gestión de Blog</span>
+                <i class="menu-arrow"></i>
+            </a>
+            <div class="collapse" id="submenu-blog">
+                <ul class="nav flex-column sub-menu">
+                    <li class="nav-item">
+                        <a class="nav-link" href="#" id="redireccionBlogCategories">
+                             Categorías
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </li>
+
+
+        <li class="nav-item">
+            <a class="nav-link" href="#" id="redireccionUser">
+                 <span class="menu-title">Usuarios</span>
+            </a>
+        </li>
+
+    </ul>
+</nav>
+
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const redirectionMap = {
+            redireccionHome: '/Admin/Index',
+            redireccionBooks: '/Books/Index',
+            redireccionBlog: '/Posts/Manage',
+            redireccionBlogCategories: '/PostsCategories/Index',
+            redireccionListaBook: '/Library/Index',
+            redireccionAutor: '/Authors/Index',
+            redireccionEditorial: '/Editorials/Index',
+            redireccionCiudad: '/Countries/Index',
+            redireccionEdicion: '/Editions/Index',
+            redirecionCatalogo: '/Catalogs/Index',
+            redirecionCategoria: '/Categories/Index',
+            redirecionTipoAd: '/AcquisitionTypes/Index',
+            redireccionListaLoans: '/Loans/Index',
+            redireccionEsLoan: '/ReservationStatus/Index',
+            redireccionTipoLoan: '/LoanTypes/Index',
+            redireccionStatusLoan: '/Loans/Status2Loans',
+            redirectionStudent: '/Auth/Student',
+            redireccionUser: '/User/Index',
+            redireccionLDelite: '/Loans/LoansDelite',
+            redirectionRLoans: '/Loans/AllLoans',
+            redirectionOverdue: '/Loans/LoansOverdue'
+        };
+
+        Object.keys(redirectionMap).forEach(id => {
+            const element = document.getElementById(id);
+            if (element) {
+                element.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    window.location.href = redirectionMap[id];
+                });
+            }
+        });
+    });
+</script>
+
+
+    <script src="https://code.jquery.com/jquery-3.1.1.slim.min.js" integrity="sha384-A7FZj7v+d/sdmMqp/nOQwliLvUsJfDHW+k9Omg/a/EheAdgtzNs3hpfag6Ed950n" crossorigin="anonymous"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/tether/1.4.0/js/tether.min.js" integrity="sha384-DztdAPBWPRXSA/3eYEEUWrWCy7G5KFbe8fFjk5JAIxUYHKkDx6Qin1DkWx51bBrb" crossorigin="anonymous"></script>
+    <script src="https://maxcdn.bootstrapcdn.com/bootstrap/4.0.0-alpha.6/js/bootstrap.min.js" integrity="sha384-vBWWzlZJ8ea9aCX4pEW3rVHjgjt7zpkNpZk+02D9phzyeVkE+jo0ieGizqPLForn" crossorigin="anonymous"></script>
+   <script src="https://use.fontawesome.com/f225000782.js"></script>
+
+
+

@@ -1,0 +1,156 @@
+@model IEnumerable<Library.DataAccess.Domain.Loans>
+@using System.Security.Claims
+
+@{
+    ViewData["Title"] = User.Identity.Name ?? "Perfil de Estudiante";
+    Layout = "~/Views/Shared/_LayoutUsers.cshtml";
+
+    var userClaims = User.Identity as ClaimsIdentity;
+    var nombre = userClaims.FindFirst(ClaimTypes.Name)?.Value;
+    var code = userClaims.FindFirst("CodigoEstudiante")?.Value;
+    var correo = userClaims.FindFirst(ClaimTypes.Email)?.Value ?? "Correo no disponible";
+
+    List<Library.DataAccess.Domain.LoanDates2> loanDate = ViewBag.LoanDates as List<Library.DataAccess.Domain.LoanDates2>;
+}
+
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+
+<!-- Header Start -->
+<div class="jumbotron jumbotron-fluid page-header position-relative overlay-bottom" style="margin-bottom: 90px;">
+    <div class="container text-center py-5">
+        <h1 class="text-white display-1">Prestamos</h1>
+        <div class="mx-auto mb-5" style="width: 100%; max-width: 600px;">
+        </div>
+    </div>
+</div>
+<!-- Header End -->
+
+<!-- Mis Préstamos Start -->
+<div class="container-fluid py-1">
+    <div class="container py-1">
+        <div class="row mx-0 justify-content-center">
+            <div class="col-lg-8">
+                <div class="section-title text-center position-relative mb-5">
+                    <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">
+                        <i class="fas fa-book-open"></i> Mis Préstamos
+                    </h6>
+                    <h1 class="display-4">Listado de libros prestados</h1>
+                </div>
+            </div>
+        </div>
+
+        @if (Model == null || !Model.Any())
+        {
+            <div class="text-center py-5">
+                <i class="fas fa-book fa-3x text-secondary mb-3"></i>
+                <h3>No tienes libros prestados</h3>
+                <p>Visita la biblioteca para solicitar un préstamo</p>
+            </div>
+        }
+        else
+        {
+            <div class="row">
+                @foreach (var loan in Model)
+                {
+                    var loanDateInfo = loanDate?
+                        .Where(d => d.ID_LOAN == loan.LOAN_ID)
+                        .OrderByDescending(d => d.END_DATE)
+                        .FirstOrDefault();
+
+                    int diasRestantes = 0;
+                    int horasRestantes = 0;
+                    string statusClass = "text-white";
+                    string statusText = "Fecha no disponible";
+                    string statusIcon = "fas fa-question-circle";
+
+                    if (loanDateInfo != null)
+                    {
+                        diasRestantes = (loanDateInfo.END_DATE - DateTime.Now).Days;
+                        horasRestantes = (loanDateInfo.END_DATE - DateTime.Now).Hours;
+
+                        if (diasRestantes >= 1)
+                        {
+                            statusClass = "text-success";
+                            statusText = $"Devolver en {diasRestantes + 1} días";
+                            statusIcon = "far fa-calendar-check";
+                        }
+                        else if (diasRestantes == 0)
+                        {
+                            statusClass = "text-warning";
+                            statusText = horasRestantes > 0 ? "Devolver mañana" : "Devolver hoy";
+                            statusIcon = "far fa-clock";
+                        }
+                        else if (diasRestantes == -1)
+                        {
+                            statusClass = "text-warning";
+                            statusText = "Vencido ayer";
+                            statusIcon = "fas fa-exclamation-circle";
+                        }
+                        else
+                        {
+                            statusClass = "text-danger";
+                            statusText = $"Vencido hace {Math.Abs(diasRestantes)} días";
+                            statusIcon = "fas fa-times-circle";
+                        }
+                    }
+
+                    <div class="col-lg-4 col-md-6 pb-4">
+                        <div class="courses-list-item position-relative d-block overflow-hidden mb-2">
+                            <img class="img-fluid" src="@loan.Books.COVER" alt="@loan.Books.TITLE">
+                            <div class="courses-text">
+                                <h4 class="text-center text-white px-3">@loan.Books.TITLE</h4>
+                                <div class="border-top w-100 mt-3">
+                                    <div class="d-flex flex-column p-4 text-white">
+                                        <span>
+                                            <i class="far fa-calendar-alt me-2"></i>
+                                            Prestado el @(loanDateInfo?.START_DATE.ToShortDateString() ?? "N/A")
+                                        </span>
+                                        <span class="@statusClass mt-2">
+                                            <i class="@statusIcon me-2"></i> @statusText
+                                        </span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+
+            <!-- Paginación -->
+            <div class="col-12 mt-4">
+                <nav aria-label="Page navigation">
+                    <ul class="pagination pagination-lg justify-content-center mb-0">
+
+                        <!-- Botón anterior -->
+                        <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                            <a class="page-link rounded-0"
+                               href="@Url.Action("Profile", "Auth", new { page = ViewBag.CurrentPage - 1, pageSize = ViewBag.PageSize })"
+                               aria-label="Previous">
+                                <span aria-hidden="true">&laquo;</span>
+                            </a>
+                        </li>
+
+                        <!-- Números de página -->
+                        @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                        {
+                            <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                                <a class="page-link"
+                                   href="@Url.Action("Profile", "Auth", new { page = i, pageSize = ViewBag.PageSize })">@i</a>
+                            </li>
+                        }
+
+                        <!-- Botón siguiente -->
+                        <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                            <a class="page-link rounded-0"
+                               href="@Url.Action("Profile", "Auth", new { page = ViewBag.CurrentPage + 1, pageSize = ViewBag.PageSize })"
+                               aria-label="Next">
+                                <span aria-hidden="true">&raquo;</span>
+                            </a>
+                        </li>
+                    </ul>
+                </nav>
+            </div>
+        }
+    </div>
+</div>
+<!-- Mis Préstamos End -->

@@ -1,0 +1,185 @@
+﻿@model IEnumerable<Library.DataAccess.Domain.LoansTeacher>
+
+@{
+    ViewData["Title"] = "Index";
+
+    List<Library.DataAccess.Domain.LoanTypes> loanTypes =
+        ViewBag.LoansTypes as List<Library.DataAccess.Domain.LoanTypes> ?? new();
+
+    List<Library.DataAccess.Domain.ReservationStatus> reservations =
+        ViewBag.ReservationStatus as List<Library.DataAccess.Domain.ReservationStatus> ?? new();
+
+    Dictionary<long, Tuple<DateTime?, bool>> loanDatesList =
+        ViewBag.LoanDatesList as Dictionary<long, Tuple<DateTime?, bool>>
+        ?? new Dictionary<long, Tuple<DateTime?, bool>>();
+}
+
+<style>
+    body {
+        overflow-x: hidden;
+    }
+
+    .spacer {
+        margin-right: 20px;
+    }
+</style>
+
+<div class="card">
+    <div class="card-body">
+
+        <h2>Préstamo General</h2>
+
+        <form asp-action="Index" method="get" class="d-flex mb-3">
+            <div class="col-12 col-md-auto">
+                <a asp-controller="LoansTeacher"
+                   asp-action="Create"
+                   class="btn btn-success w-100">
+                    <i class="bi bi-plus-circle"></i> Crear nuevo
+                </a>
+            </div> 
+            <div class="spacer">
+                <select name="ID_TYPE" class="form-control">
+                    <option value="0">Tipo de Préstamo</option>
+                    @foreach (var t in loanTypes)
+                    {
+                        <option value="@t.TYPES_ID">@t.TYPES_NAME</option>
+                    }
+                </select>
+            </div>
+
+            <div class="spacer">
+                <select name="ID_RESERVATION" class="form-control">
+                    <option value="0">Estado</option>
+                    @foreach (var r in reservations)
+                    {
+                        <option value="@r.RESERVATION_ID">@r.STATUS_NAME</option>
+                    }
+                </select>
+            </div>
+           
+        </form>
+
+        <table class="table table-bordered">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Tipo</th>
+                    <th>Estado</th>
+                    <th>Correo</th>
+                    <th>Nombre</th>
+                    <th>Rol</th>
+                    <th>Libro</th>
+                    <th>Status</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+
+            <tbody>
+                @{
+                    var loanIds = new List<long>();
+                    bool hasResults = false;
+                }
+
+                @foreach (var item in Model)
+                {
+                    if (item.STATUS)
+                    {
+                        hasResults = true;
+                        loanIds.Add(item.ID_LENDER);
+
+                        bool isOverdue = false;
+
+                        if (loanDatesList.ContainsKey(item.PERSONAL_ID))
+                        {
+                            isOverdue = loanDatesList[item.PERSONAL_ID].Item2;
+                        }
+
+                        <tr>
+                            <td>@item.LOANSTEACHER_ID</td>
+                            <td>@item.LoanTypes?.TYPES_NAME</td>
+
+                            <td style="@(isOverdue ? "color:red;font-weight:bold" : "")">
+                                @item.ReservationStatus?.STATUS_NAME
+                                @if (isOverdue)
+                                {
+                                    <span> / No devuelto</span>
+                                }
+                            </td>
+                            <td>@(string.IsNullOrEmpty(item.EMAIL) ? "No disponible" : item.EMAIL)</td>
+                            <td>@(string.IsNullOrEmpty(item.PERSONALNAME) ? "No disponible" : item.PERSONALNAME)</td>
+                            <td>@(string.IsNullOrEmpty(item.ROL) ? "No asignado" : item.ROL)</td>
+                            <td>@item.Books?.TITLE</td>
+                            <td>@(item.STATUS ? "ACTIVO" : "ELIMINADO")</td>
+
+                            <td>
+                                <div class="d-flex gap-2">
+                                    <!-- BOTÓN EDITAR -->
+                                    <a asp-action="Edit"
+                                       asp-route-id="@item.LOANSTEACHER_ID"
+                                       class="btn btn-info btn-sm"
+                                       style="background:#1D4ED8; border:none;">
+                                        <i class="bi bi-eye"></i> Editar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                }
+
+                @if (!hasResults)
+                {
+                    <tr>
+                        <td colspan="7" class="text-center">
+                            No se encontraron préstamos
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+    </div>
+</div>
+
+
+<!-- ===================== SCRIPTS ===================== -->
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+@section Scripts {
+    @if (TempData["Alerta"] != null)
+    {
+        <script>
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: '@TempData["Alerta"]',
+                confirmButtonText: 'Aceptar'
+            });
+        </script>
+    }
+}
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        var loanIds = @Html.Raw(System.Text.Json.JsonSerializer.Serialize(loanIds));
+
+        loanIds.forEach(id => {
+            buscarDocente(id);
+        });
+    });
+
+    function buscarDocente(id) {
+        $.ajax({
+            method: 'POST',
+            url: '@Url.Action("BuscarDocenteId", "Loans")',
+            data: { id: id },
+            success: function (data) {
+                $('.tdTeacherName_' + id).text(data?.fullName ?? 'No disponible');
+            },
+            error: function () {
+                $('.tdTeacherName_' + id).text('No disponible');
+            }
+        });
+    }
+</script>
+ 
+
+

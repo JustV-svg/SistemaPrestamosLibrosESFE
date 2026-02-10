@@ -1,0 +1,113 @@
+@using Library.DataAccess.Domain
+@using Newtonsoft.Json
+@model IEnumerable<Library.DataAccess.Domain.Posts>
+
+@{
+    ViewData["Title"] = "Buscar";
+    Layout = "~/Views/Shared/_LayoutUsers.cshtml";
+    ViewBag.ShowNavbar = false;
+    var defaultImage = "/img/esfelogo-expanded.png";
+    var postImage = "";
+}
+<!-- Header Start -->
+<div class="jumbotron jumbotron-fluid page-header position-relative overlay-bottom" style="margin-bottom: 90px;">
+    <div class="container text-center py-5">
+        <h1 class="text-white display-1">Blog</h1>
+        <div class="mx-auto mb-5" style="width: 100%; max-width: 600px;">
+            <!-- Buscador estilo barra unificada -->
+            <div class="card mb-5 shadow-sm">
+                <div class="card-body">
+                    <form asp-action="Search" method="get">
+                        <div class="input-group input-group-lg">
+
+                            <!-- Input de búsqueda -->
+                            <input type="text" name="Query" id="Query"
+                                   class="form-control" placeholder="Buscar..." />
+
+                            <!-- Categoría -->
+                            <select class="form-select" id="CategoryId" name="CategoryId">
+                                <option value="0">Categoría</option>
+                                @foreach (PostsCategories item in ViewBag.Categories)
+                                {
+                                    <option value="@item.Id">@item.Name</option>
+                                }
+                            </select>
+
+                            <!-- Fecha -->
+                            <input type="date" class="form-control" id="Date" name="Date" />
+
+                            <!-- Botón -->
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-search"></i> Buscar
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+</div>
+<!-- Header End -->
+<div class="container-fluid py-1">
+    <div class="container py-1">
+
+
+
+        <!-- Resultados -->
+        @if (Model.Any())
+        {
+            <div class="section-title text-center position-relative mb-5">
+                <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">Resultados</h6>
+                <h1 class="display-5">@Model.Count() publicaciones encontradas</h1>
+            </div>
+
+            <div class="owl-carousel team-carousel position-relative" style="padding: 0 30px;">
+                @foreach (var post in Model)
+                {
+                    postImage = post.IMAGES.Take(1).FirstOrDefault()?.PATH ?? defaultImage;
+
+                    <div class="team-item">
+                        <a href="/Posts/Details/@post.ID" style="text-decoration: none;">
+                            <img class="img-fluid w-100" src="@postImage" alt="@post.TITLE" />
+                            <div class="bg-light text-center p-4">
+                                <h5 class="mb-3">@post.TITLE</h5>
+                                <p class="mb-2">@post.CATEGORY?.Name</p>
+                                <p class="text-truncate">@post.CONTENT</p>
+                            </div>
+                        </a>
+                    </div>
+                }
+            </div>
+        }
+        else
+        {
+            <h2 class="text-center mt-3 fw-bold">No hay ninguna coincidencia</h2>
+        }
+    </div>
+</div>
+
+<!-- Owl Carousel JS -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/owl.carousel.min.js"></script>
+<script>
+    $(document).ready(function () {
+        $(".team-carousel").owlCarousel({
+            autoplay: true,
+            smartSpeed: 1000,
+            margin: 30,
+            dots: false,
+            loop: true,
+            nav: true,
+            responsive: {
+                0: { items: 1 },
+                576: { items: 2 },
+                768: { items: 3 },
+                992: { items: 4 }
+            }
+        });
+    });
+
+    document.querySelector('.main-content').classList.remove('with-menu');
+    document.querySelector('.main-content').classList.add('full-width');
+</script>

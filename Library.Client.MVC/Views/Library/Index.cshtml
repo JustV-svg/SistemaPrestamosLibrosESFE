@@ -1,0 +1,326 @@
+﻿@model IEnumerable<Library.DataAccess.Domain.Books>
+@{
+    ViewData["Title"] = "Inicio";
+    Layout = "~/Views/Shared/_LayoutUsers.cshtml";
+    int numPage = 1;
+    int numRegistros = 0;
+    int numRegistrosPorPage = 12;
+    int[] tops = { 12, 20, 50, 100, 500, 1000, 10000, -1 };
+    int topActual = Convert.ToInt32(ViewBag.Top);
+
+    List<Library.DataAccess.Domain.Categories> categories = ViewBag.Categories as List<Library.DataAccess.Domain.Categories>;
+    List<Library.DataAccess.Domain.AcquisitionTypes> acquisitionTypes = ViewBag.AcquisitionTypes as List<Library.DataAccess.Domain.AcquisitionTypes>;
+    List<Library.DataAccess.Domain.Editorials> editorials = ViewBag.Editorials as List<Library.DataAccess.Domain.Editorials>;
+    List<Library.DataAccess.Domain.Authors> authors = ViewBag.Authors as List<Library.DataAccess.Domain.Authors>;
+    List<Library.DataAccess.Domain.Editions> editions = ViewBag.Editions as List<Library.DataAccess.Domain.Editions>;
+    List<Library.DataAccess.Domain.Countries> countries = ViewBag.Countries as List<Library.DataAccess.Domain.Countries>;
+    List<Library.DataAccess.Domain.Catalogs> catalogs = ViewBag.Catalogs as List<Library.DataAccess.Domain.Catalogs>;
+}
+
+<!-- Header Start -->
+<div class="jumbotron jumbotron-fluid position-relative overlay-bottom" style="margin-bottom: 90px;">
+    <div class="container text-center my-5 py-5">
+        <h1 class="text-white display-1 mb-5">ESFE/AGAPE</h1>
+
+        <div class="mx-auto mb-5" style="width: 100%; max-width: 600px;">
+            <form asp-action="Index" method="get" class="mb-4">
+                <div class="input-group input-group-lg" style="max-width: 900px; margin: auto;">
+                    <!-- Campo de búsqueda -->
+                    <input type="text" name="TITLE" class="form-control fw-semibold" placeholder="Buscar por título..." />
+
+                    <!-- Botón de filtros -->
+                    <button type="button" class="btn btn-filtros"
+                            data-bs-toggle="collapse" data-bs-target="#filtrosAvanzados"
+                            aria-expanded="false" aria-controls="filtrosAvanzados"
+                            title="Mostrar filtros">
+                        <i class="fas fa-sliders-h"></i>
+                    </button>
+
+                    <!-- Botón de buscar -->
+                    <button class="btn btn-primary px-4 fw-bold" type="submit">
+                        <i class="fas fa-search me-1"></i> Buscar
+                    </button>
+                </div>
+
+                <!-- Filtros colapsables -->
+                <div class="collapse mt-3 filtros-avanzados" id="filtrosAvanzados">
+                    <div class="row g-3">
+                        <div class="input-group input-group-lg">
+                            <select name="ID_CATEGORY" class="form-control">
+                                <option value="0">Categoría</option>
+                                @foreach (var cat in ViewBag.Categories as List<Library.DataAccess.Domain.Categories>)
+                                {
+                                    <option value="@cat.CATEGORY_ID">@cat.CATEGORY_NAME</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="input-group input-group-lg">
+                            <select name="ID_AUTHOR" class="form-control">
+                                <option value="0">Autor</option>
+                                @foreach (var aut in ViewBag.Authors as List<Library.DataAccess.Domain.Authors>)
+                                {
+                                    <option value="@aut.AUTHOR_ID">@aut.AUTHOR_NAME</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="input-group input-group-lg">
+                            <select name="ID_EDITORIAL" class="form-control">
+                                <option value="0">Editorial</option>
+                                @foreach (var ed in ViewBag.Editorials as List<Library.DataAccess.Domain.Editorials>)
+                                {
+                                    <option value="@ed.EDITORIAL_ID">@ed.EDITORIAL_NAME</option>
+                                }
+                            </select>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- Header End -->
+
+<div class="container my-4">
+    <!-- Cards -->
+    <div class="row g-4">
+        @foreach (var book in Model)
+        {
+            <div class="col-12 col-md-4 d-flex">
+                <div class="card shadow-sm border-0 rounded-3 w-100 position-relative h-100">
+
+                    <!-- Badge de existencias -->
+                    @if (book.EXISTENCES <= 0)
+                    {
+                        <span class="badge bg-white position-absolute top-0 end-0 m-2">
+                            Agotado
+                        </span>
+                    }
+                    else if (book.EXISTENCES <= 2)
+                    {
+                        <span class="badge bg-white text-dark position-absolute top-0 end-0 m-2">
+                            Solo @book.EXISTENCES
+                        </span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-white position-absolute top-0 end-0 m-2">
+                            @book.EXISTENCES disponibles
+                        </span>
+                    }
+
+                    <!-- Portada -->
+                    <img src="@book.COVER" alt="@book.TITLE" class="card-img-top" style="height: 300px; object-fit: cover;" />
+
+                    <!-- Contenido -->
+                    <div class="card-body text-center d-flex flex-column">
+                        <h6 class="card-title fw-bold text-truncate">
+                            @(book.TITLE.Length > 25 ? book.TITLE[..25] + "..." : book.TITLE)
+                        </h6>
+
+                        <div class="mt-auto">
+                            @if (User.Identity.IsAuthenticated)
+                            {
+                                @Html.ActionLink(" Reservar", "CreateLoansSt", new { id = book.BOOK_ID },
+                                new { @class = "btn btn-success btn-sm w-100 mb-2 fw-semibold shadow-sm" })
+                                                }
+                            <button type="button" class="btn btn-outline-primary btn-sm w-100 fw-semibold shadow-sm"
+                                    data-bs-toggle="modal" data-bs-target="#bookModal_@book.BOOK_ID">
+                                <i class="bi bi-info-circle me-1"></i> Características
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+
+    <!-- Paginación -->
+    <div class="col-12 mt-4">
+        <nav aria-label="Page navigation">
+            <ul class="pagination pagination-lg justify-content-center mb-0">
+
+                <!-- Botón anterior -->
+                <li class="page-item @(ViewBag.CurrentPage == 1 ? "disabled" : "")">
+                    <a class="page-link rounded-0"
+                       href="@Url.Action("Index", new { page = ViewBag.CurrentPage - 1, pageSize = ViewBag.PageSize, TITLE = ViewBag.TitleFilter, ID_CATEGORY = ViewBag.CategoryFilter, ID_AUTHOR = ViewBag.AuthorFilter, ID_EDITORIAL = ViewBag.EditorialFilter })"
+                       aria-label="Previous">
+                        <span aria-hidden="true">&laquo;</span>
+                    </a>
+                </li>
+
+                <!-- Números de página -->
+                @for (int i = 1; i <= ViewBag.TotalPages; i++)
+                {
+                    <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                        <a class="page-link"
+                           href="@Url.Action("Index", new { page = i, pageSize = ViewBag.PageSize, TITLE = ViewBag.TitleFilter, ID_CATEGORY = ViewBag.CategoryFilter, ID_AUTHOR = ViewBag.AuthorFilter, ID_EDITORIAL = ViewBag.EditorialFilter })">@i</a>
+                    </li>
+                }
+
+                <!-- Botón siguiente -->
+                <li class="page-item @(ViewBag.CurrentPage == ViewBag.TotalPages ? "disabled" : "")">
+                    <a class="page-link rounded-0"
+                       href="@Url.Action("Index", new { page = ViewBag.CurrentPage + 1, pageSize = ViewBag.PageSize, TITLE = ViewBag.TitleFilter, ID_CATEGORY = ViewBag.CategoryFilter, ID_AUTHOR = ViewBag.AuthorFilter, ID_EDITORIAL = ViewBag.EditorialFilter })"
+                       aria-label="Next">
+                        <span aria-hidden="true">&raquo;</span>
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </div>
+</div>
+@foreach (var libro in Model)
+{
+    <div class="modal fade book-modal" id="bookModal_@libro.BOOK_ID" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered modal-lg" style="max-width: 750px; width: 100%;">
+            <div class="modal-content border-0 shadow-lg">
+
+                <!-- Header -->
+                <div class="modal-header border-0 bg-light py-2">
+                    <h5 class="modal-title text-danger text-uppercase fw-bold">Información del Libro</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
+                <!-- Body -->
+                <div class="modal-body p-4">
+                    <div class="row g-3">
+
+                        <!-- Columna Izquierda -->
+                        <div class="col-12 col-md-5">
+                            <div class="bg-light d-flex flex-column px-3 py-4 h-100">
+
+                                <!-- Imagen portada -->
+                                <div class="mb-3 text-center">
+                                    <img src="@libro.COVER" alt="@libro.TITLE"
+                                         class="img-fluid rounded shadow-sm"
+                                         style="max-height: 200px; width: auto;" />
+                                </div>
+
+                                <!-- Estado (izquierda, no centrado) -->
+                                <div class="align-items-center mb-2">
+                                    <div class="btn-icon
+                                            @(libro.EXISTENCES <= 0 ? "bg-danger" : libro.EXISTENCES <= 2 ? "bg-warning" : "bg-success")">
+                                        <i class="fa fa-book text-white"></i>
+                                    </div>
+                                    <div class="detail-text ms-3">
+                                        @(libro.EXISTENCES <= 0 ? "No disponible" :
+                                                                            libro.EXISTENCES <= 2 ? "Stock limitado" :
+                                                                            "Disponible")
+                                    @if (libro.EXISTENCES > 0)
+                                        {
+                                            <div class="small text-muted">@libro.EXISTENCES unidades</div>
+                                        }
+                                    </div>
+                                </div>
+
+                                <!-- Año (izquierda, no centrado) -->
+                                <div class=" align-items-center">
+                                    <div class="btn-icon bg-secondary">
+                                        <i class="fa fa-calendar-alt text-white"></i>
+                                    </div>
+                                    <div class="detail-text ms-3">
+                                        <span class="detail-label">Año:</span> @libro.YEAR
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Columna Derecha -->
+                        <div class="col-12 col-md-7">
+                            <h5 class="fw-bold mb-3">@libro.TITLE</h5>
+
+                            <div class=" align-items-center mb-2">
+                                <div class="btn-icon bg-primary">
+                                    <i class="fa fa-user-edit text-white"></i>
+                                </div>
+                                <p class="m-0 detail-text ms-3"><span class="detail-label">Autor:</span> @libro.Authors.AUTHOR_NAME</p>
+                            </div>
+
+                            <div class=" align-items-center mb-2">
+                                <div class="btn-icon bg-danger">
+                                    <i class="fa fa-building text-white"></i>
+                                </div>
+                                <p class="m-0 detail-text ms-3"><span class="detail-label">Editorial:</span> @libro.Editorials.EDITORIAL_NAME</p>
+                            </div>
+
+                            <div class=" align-items-center mb-2">
+                                <div class="btn-icon bg-warning">
+                                    <i class="fa fa-tags text-white"></i>
+                                </div>
+                                <p class="m-0 detail-text ms-3"><span class="detail-label">Categoría:</span> @libro.Categories.CATEGORY_NAME</p>
+                            </div>
+
+                            <div class=" align-items-center mb-2">
+                                <div class="btn-icon bg-info">
+                                    <i class="fa fa-layer-group text-white"></i>
+                                </div>
+                                <p class="m-0 detail-text ms-3"><span class="detail-label">Catálogo:</span> @libro.Catalogs.CATALOG_NAME</p>
+                            </div>
+
+                            <!-- Botón acción -->
+                            @if (!User.Identity.IsAuthenticated)
+                            {
+                                <div class="mt-3">
+                                    <a asp-controller="Auth" asp-action="Login" class="btn btn-primary btn-sm px-4 fw-bold">
+                                        <i class="fa fa-bookmark me-1"></i> Reservar
+                                    </a>
+                                    <p class="text-muted mt-2 small">
+                                        <i class="fas fa-info-circle"></i>
+                                        Debes iniciar sesión para reservar.
+                                    </p>
+                                </div>
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Footer -->
+                <div class="modal-footer bg-light py-2">
+                    <small class="text-muted">
+                        <i class="fas fa-shield-alt me-1"></i> Plataforma segura
+                    </small>
+                    <button type="button" class="btn btn-danger btn-sm fw-bold" data-bs-dismiss="modal">
+                        <i class="fas fa-times me-1"></i> Cerrar
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+}
+@section Scripts {
+    <script>
+        // Pasar los valores de TempData a variables JavaScript
+        var successMessage = '@TempData["SuccessMessage"]';
+        var errorMessage = '@TempData["ErrorMessage"]';
+        var logoutMessage = '@TempData["LogoutMessage"]';
+
+        // Solo mostrar la alerta si hay un mensaje real (no vacío)
+        if (successMessage !== '') {
+            Swal.fire({
+                icon: 'success',
+                title: '¡Éxito!',
+                text: successMessage,
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Aceptar'
+            });
+        }
+        if (errorMessage !== '') {
+            Swal.fire({
+                icon: 'error',
+                title: '¡Error!',
+                text: errorMessage,
+                confirmButtonColor: '#d33',
+                confirmButtonText: 'Aceptar'
+            });
+        }
+        if (logoutMessage !== '') {
+            Swal.fire({
+                icon: 'info',
+                title: 'Sesion cerrada',
+                text: logoutMessage,
+                confirmButtonColor: '#3085d6',
+                confirmButtonText: 'Aceptar'
+            });
+        }
+    </script>
+}

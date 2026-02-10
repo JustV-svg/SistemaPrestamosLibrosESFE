@@ -1,0 +1,139 @@
+﻿@{
+    ViewData["Title"] = "Reglamento";
+    Layout = "~/Views/Shared/_LayoutUsers.cshtml";
+    ViewBag.ShowHeader = true;          // Para que aparezca
+    ViewBag.HeaderTitle = "Reglamento"; // Título dinámico
+}
+
+
+<!-- Detail Start -->
+<div class="container-fluid py-1">
+    <div class="container py-1">
+        <div class="row">
+            <!-- CONTENIDO PRINCIPAL -->
+            <div class="col-lg-8">
+                <!-- Normas -->
+                <div class="mb-5">
+                    <div class="section-title position-relative mb-5">
+                        <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2">
+                            Reglamento Biblioteca
+                        </h6>
+                        <h1 class="display-4">Normas de Comportamiento Social</h1>
+                    </div>
+                    <img class="img-fluid rounded w-100 mb-4" src="~/User/img/BibliotecaReglamento1.jpg" alt="Biblioteca">
+
+                    <div class="row">
+                        <div class="col-md-12">
+                            <ul class="list-group list-group-flush">
+                                <li class="list-group-item"><strong>1.</strong> Al ingresar a la biblioteca usted debe guardar silencio.</li>
+                                <li class="list-group-item"><strong>2.</strong> Haga buen uso de la sala de lectura.</li>
+                                <li class="list-group-item"><strong>3.</strong> Al retirarse de la biblioteca debe dejar ordenadas las sillas.</li>
+                                <li class="list-group-item"><strong>4.</strong> No deje basura sobre las mesas, sea ordenado y limpio.</li>
+                                <li class="list-group-item"><strong>5.</strong> No ingrese con alimentos ni bebidas, consúmalos fuera de la biblioteca.</li>
+                                <li class="list-group-item"><strong>6.</strong> Modere el tono de voz dentro de la biblioteca.</li>
+                                <li class="list-group-item"><strong>7.</strong> Evite usar vocabulario inadecuado dentro de la biblioteca.</li>
+                                <li class="list-group-item"><strong>8.</strong> Haga buen uso del equipo informático.</li>
+                                <li class="list-group-item"><strong>9.</strong> Solicite el equipo informático al encargado y llene el formato de préstamo de PC.</li>
+                                <li class="list-group-item"><strong>10.</strong> Solo se permite una persona por PC para evitar aglomeraciones.</li>
+                                <li class="list-group-item"><strong>11.</strong> Al abandonar la PC, pierde el derecho a seguir usándola.</li>
+                                <li class="list-group-item"><strong>12.</strong> No deje objetos personales para reservar el equipo; serán retirados por el personal.</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Requisitos de préstamo -->
+                <div class="mb-5">
+                    <div class="section-title position-relative mb-4">
+                        <h1 class="h3">Requisitos de Préstamos Bibliográficos</h1>
+                    </div>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item"><strong>1.</strong> Carnet vigente de estudiante activo.</li>
+                        <li class="list-group-item"><strong>2.</strong> Máximo de 1 reservacion, para hacer otro prestamo ir a Biblioteca de forma presencial.</li>
+                        <li class="list-group-item"><strong>3.</strong> Solo se prestarán recursos con tres o más ejemplares para uso externo.</li>
+                        <li class="list-group-item"><strong>4.</strong> El préstamo es personal e intransferible.</li>
+                        <li class="list-group-item"><strong>5.</strong> El usuario es responsable por extravío o daño del recurso.</li>
+                        <li class="list-group-item"><strong>6.</strong> Mora de $0.50 por día en caso de retraso.</li>
+                    </ul>
+                </div>
+
+                <!-- Lineamientos Laptops -->
+                <div class="mb-5">
+                    <div class="section-title position-relative mb-4">
+                        <h1 class="h3">Lineamientos para Préstamo de Laptops</h1>
+                    </div>
+                    <div class="accordion" id="accordionLaptops">
+                        <div class="card">
+                            <div class="card-header" id="heading1">
+                                <h2 class="mb-0">
+                                    <button class="card-header btn btn-link" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                        1. Requisitos de Elegibilidad
+                                    </button>
+                                </h2>
+                            </div>
+                            <div id="collapse1" class="collapse show" data-parent="#accordionLaptops">
+                                <div class="card-body">
+                                    <ul>
+                                        <li>Disponible únicamente para estudiantes activos de la institución.</li>
+                                        <li>Deben estar matriculados y con estado académico activo.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="card">
+                            <div class="card-header" id="heading2">
+                                <h2 class="mb-0">
+                                    <button class="card-header btn btn-link collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                        2. Proceso de Préstamo
+                                    </button>
+                                </h2>
+                            </div>
+                            <div id="collapse2" class="collapse" data-parent="#accordionLaptops">
+                                <div class="card-body">
+                                    <ul>
+                                        <li>Préstamo en orden de llegada con reservacion completada.</li>
+                                        <li>Presentar carnet + documento de identidad.</li>
+                                        <li>Uso exclusivo dentro de la institución.</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Puedes seguir adaptando las secciones 3 a 9 de laptops igual que arriba -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- COLUMNA DERECHA -->
+            <div class="col-lg-4 mt-5 mt-lg-0">
+                <div class="bg-primary mb-5 py-3">
+                    <h3 class="text-white py-3 px-4 m-0">Información</h3>
+                    <div class="d-flex justify-content-between border-bottom px-4">
+                        <h6 class="text-white my-3">Horario</h6>
+                        <h6 class="text-white my-3">Lun-Jue: 7:30-6:45 <br> Vie: 7:30-4:00</h6>
+                    </div>
+                    <div class="d-flex justify-content-between border-bottom px-4">
+                        <h6 class="text-white my-3">Ubicación</h6>
+                        <h6 class="text-white my-3">Biblioteca ESFE/AGAPE</h6>
+                    </div>
+                    <div class="d-flex justify-content-between px-4">
+                        <h6 class="text-white my-3">Contacto</h6>
+                        <h6 class="text-white my-3">biblioteca@agape.edu.sv</h6>
+                    </div>
+                </div>
+
+                <div class="mb-5">
+                    <h2 class="mb-3">Categorías</h2>
+                    <ul class="list-group list-group-flush">
+                        <li class="list-group-item">Normas</li>
+                        <li class="list-group-item">Préstamos Bibliográficos</li>
+                        <li class="list-group-item">Lineamientos Laptops</li>
+                        <li class="list-group-item">Restricciones</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Detail End -->

@@ -1,0 +1,284 @@
+@using Library.DataAccess.Domain
+@using Markdig
+@model IEnumerable<Library.DataAccess.Domain.Posts>
+
+@{
+    ViewData["TITLE"] = "Administrar Publicaciones";
+}
+<head>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/normalize/8.0.1/normalize.min.css" />
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet" />
+</head>
+
+<style>
+    body {
+        background: #f5f7fa;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        color: #333;
+    }
+
+    h1 {
+        font-weight: 700;
+        color: #2c3e50;
+        margin-bottom: 2rem;
+        letter-spacing: 1px;
+    }
+
+    .card {
+        border-radius: 12px;
+        box-shadow: 0 4px 10px rgb(0 0 0 / 0.1);
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        overflow: hidden;
+        background: #fff;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 20px rgb(0 0 0 / 0.15);
+        }
+
+        .card .card-title {
+            font-weight: 600;
+            font-size: 1.3rem;
+            color: #34495e;
+            margin-bottom: 0.75rem;
+        }
+
+        .card .card-text {
+            max-height: 120px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            font-size: 0.95rem;
+            color: #555;
+            line-height: 1.4;
+        }
+
+    .card-footer {
+        background: #f8f9fa;
+        border-top: none;
+        font-size: 0.85rem;
+        color: #777;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 0.75rem 1rem;
+        border-radius: 0 0 12px 12px;
+    }
+
+        .card-footer .btn {
+            font-size: 0.85rem;
+            padding: 0.3rem 0.7rem;
+            border-radius: 8px;
+            box-shadow: none;
+            transition: background-color 0.25s ease;
+        }
+
+            .card-footer .btn:hover {
+                box-shadow: 0 2px 8px rgb(0 0 0 / 0.1);
+            }
+
+    form.d-flex input.form-control {
+        border-radius: 25px 0 0 25px;
+        box-shadow: none;
+        border: 1px solid #ced4da;
+    }
+
+    form.d-flex button {
+        border-radius: 0 25px 25px 0;
+        box-shadow: none;
+        border: 1px solid #0d6efd;
+        background-color: #0d6efd;
+        color: white;
+        transition: background-color 0.3s ease;
+    }
+
+        form.d-flex button:hover {
+            background-color: #084298;
+            border-color: #084298;
+        }
+
+    a.btn-primary {
+        border-radius: 25px;
+        padding: 0.5rem 1.5rem;
+        font-weight: 600;
+        box-shadow: 0 3px 8px rgb(13 110 253 / 0.4);
+        transition: background-color 0.3s ease;
+    }
+
+        a.btn-primary:hover {
+            background-color: #084298;
+            box-shadow: 0 6px 12px rgb(8 66 152 / 0.6);
+        }
+
+    .toast {
+        border-radius: 12px;
+        box-shadow: 0 5px 15px rgb(0 0 0 / 0.2);
+    }
+
+    .position-fixed.bottom-0.end-0.p-3 {
+        bottom: 20px !important;
+        right: 20px !important;
+        z-index: 1055 !important;
+    }
+
+    /* Responsive tweaks */
+    @@media (max-width: 767px) {
+        .card-footer {
+            flex-direction: column;
+            gap: 0.5rem;
+            text-align: center;
+        }
+    }
+</style>
+
+<div class="card shadow-sm border-0 mt-4">
+    <div class="card-body">
+        <div class="container">
+            @if (ViewBag.message != null)
+            {
+                <!-- TOASTS -->
+                <div class="position-fixed bottom-0 end-0 p-3" style="z-index: 5">
+                    <div id="toastError" class="toast align-items-center bg-danger border-0" role="alert" aria-live="assertive" aria-atomic="true" style="display: none;">
+                        <div class="d-flex">
+                            <div class="toast-body text-white fw-bold">
+                                @ViewBag.message
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                        </div>
+                    </div>
+                    <div id="toastSuccess" class="toast align-items-center bg-success border-0" role="alert" aria-live="assertive" aria-atomic="true" style="display: none;">
+                        <div class="d-flex">
+                            <div class="toast-body text-white fw-bold">
+                                @ViewBag.message
+                            </div>
+                            <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+                        </div>
+                    </div>
+                </div>
+            }
+
+            <!-- TÍTULO -->
+            <div class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4">
+                <h1 class="mb-3 mb-md-0" style="font-family: 'Poppins', sans-serif; font-weight: 600;">Administrar Publicaciones</h1>
+                <a asp-action="Create" class="btn btn-primary d-block d-md-inline-block">Crear Nuevo</a>
+            </div>
+
+            <!-- BUSCADOR -->
+            <form class="row g-2 mb-4" method="get">
+                <div class="col-md-9 col-sm-12">
+                    <input type="text" name="search" class="form-control" style="border-radius: 25px 0 0 25px;" placeholder="Buscar por título o contenido..." />
+                </div>
+                <div class="col-md-3 col-sm-12">
+                    <button type="submit" class="btn btn-primary w-100" style="border-radius: 0 25px 25px 0; font-weight: 600; box-shadow: 0 3px 8px rgb(13 110 253 / 0.4);">
+                        Buscar
+                    </button>
+                </div>
+            </form>
+
+            <!-- PUBLICACIONES -->
+            @if (Model.Any())
+            {
+                <div class="row g-4">
+                    @foreach (var item in Model)
+                    {
+                        var htmlContent = Markdown.ToHtml(item.CONTENT ?? "");
+                        <div class="col-lg-4 col-md-6">
+                            <div class="card h-100">
+                                <div class="card-body">
+                                    <h5 class="card-title text-truncate">@item.TITLE</h5>
+                                    <p class="card-text">@Html.Raw(htmlContent)</p>
+                                </div>
+                                <div class="card-footer d-flex flex-column gap-2">
+                                    <small class="text-muted">Publicado: @item.CREATED_AT.ToString("dd/MM/yyyy")</small>
+                                    <div class="d-flex flex-wrap gap-2">
+                                        <a href="@Url.Action("Edit", new { id = item.ID })" class="btn btn-info" style="background: #1D4ED8">Editar</a>
+                                        <form asp-action="Delete" method="post" id="deleteForm_@item.ID">
+                                            <input type="hidden" name="id" value="@item.ID" />
+                                            <button type="button" class="btn btn-danger" style="background-color: #EF4444"
+                                                    onclick="confirmDelete('@item.ID', '@item.TITLE')">
+                                                Eliminar
+                                            </button>
+                                        </form>
+                                        @if (item.IS_PINNED)
+                                        {
+                                            <form asp-action="Unpin" method="post">
+                                                <input type="hidden" name="postId" value="@item.ID" />
+                                                <button type="submit" class="btn btn-secondary" style="background-color: #64748B">Desfijar</button>
+                                            </form>
+                                        }
+                                        else
+                                        {
+                                            <form asp-action="Pin" method="post">
+                                                <input type="hidden" name="postId" value="@item.ID" />
+                                                <button type="submit" class="btn btn-secondary" style="background-color: #64748B">Fijar</button>
+                                            </form>
+                                        }
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    }
+                </div>
+            }
+            else
+            {
+                <div class="alert alert-warning text-center">No hay publicaciones disponibles.</div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        function confirmDelete(postId, postTitle) {
+            Swal.fire({
+                title: '¿Estás seguro?',
+                text: ¡No podrás revertir la eliminación de "${postTitle}"!,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#EF4444',
+                cancelButtonColor: '#6c757d',
+                confirmButtonText: 'Sí, eliminar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    document.getElementById(deleteForm_${postId}).submit();
+                }
+            });
+        }
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            @if (TempData["success"] != null && (bool)TempData["success"])
+            {
+                            <text>
+                                Swal.fire({
+                                    icon: 'success',
+                                    title: '¡Éxito!',
+                                    text: '@TempData["messageSuccess"]',
+                                    confirmButtonText: 'Aceptar',
+                                    confirmButtonColor: '#28a745'
+                                });
+                            </text>
+            }
+        });
+    </script>
+
+    <script>
+        $(document).ready(function() {
+            @if (TempData["EditSuccess"] != null && (bool)TempData["EditSuccess"])
+            {
+                        <text>
+                            Swal.fire({
+                                icon: 'success',
+                                title: '¡Éxito!',
+                                text: 'La publicacion ha sido editada correctamente.',
+                                confirmButtonColor: '#3085d6',
+                                confirmButtonText: 'Aceptar'
+                            });
+                        </text>
+            }
+        });
+    </script>
+}

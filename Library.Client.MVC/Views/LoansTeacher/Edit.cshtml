@@ -1,0 +1,170 @@
+﻿@model Library.DataAccess.Domain.LoansTeacher
+@{
+    ViewData["Title"] = "Editar Préstamo Docente";
+
+    var loanTypes = ViewBag.LoanTypes as List<Library.DataAccess.Domain.LoanTypes> ?? new();
+    var reservationStatus = ViewBag.ReservationStatus as List<Library.DataAccess.Domain.ReservationStatus> ?? new();
+    var loanDates = ViewBag.LoanDates as List<Library.DataAccess.Domain.LoanDates> ?? new();
+    string portada = ViewBag.Portada as string;
+}
+
+<div class="card shadow-sm">
+    <div class="card-body">
+        <h2 class="text-center">Editar Préstamo Docente</h2>
+        <hr />
+
+        <form asp-action="Edit" method="post">
+            @Html.AntiForgeryToken()
+
+            <input asp-for="LOANSTEACHER_ID" type="hidden" />
+            <input asp-for="ID_BOOK" type="hidden" />
+
+            <div class="row g-3">
+                <!-- COLUMNA IZQUIERDA -->
+                <div class="col-md-7">
+                    <div class="row g-3">
+
+                        <div class="col-md-6">
+                            <label class="form-label">Tipo de Préstamo</label>
+                            <select asp-for="ID_TYPE" class="form-control">
+                                @foreach (var t in loanTypes)
+                                {
+                                    <option value="@t.TYPES_ID">@t.TYPES_NAME</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Estado</label>
+                            <select asp-for="ID_RESERVATION" class="form-control">
+                                @foreach (var r in reservationStatus)
+                                {
+                                    <option value="@r.RESERVATION_ID">@r.STATUS_NAME</option>
+                                }
+                            </select>
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Correo</label>
+                            <input asp-for="EMAIL" class="form-control" />
+                        </div>
+
+                        <div class="col-md-6">
+                            <label class="form-label">Libro</label>
+                            <input class="form-control" value="@ViewBag.TituloB" disabled />
+                        </div>
+
+                        <div class="col-12">
+                            <button type="button" id="mostrarFechas" class="btn btn-primary w-100">
+                                Asignar nueva fecha al préstamo
+                            </button>
+                        </div>
+
+                        <!-- BLOQUE FECHAS -->
+                        <div id="bloqueFechas" class="mt-2" style="display:none">
+                            <div class="row g-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Fecha Inicio</label>
+                                    <input type="date" name="fechaInicio" class="form-control" />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Fecha Cierre</label>
+                                    <input type="date" name="fechaCierre" class="form-control" />
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="col-md-6">
+                            <button type="submit" class="btn btn-success w-100">
+                                Guardar Cambios
+                            </button>
+                        </div>
+
+                        <div class="col-md-6">
+                            <a asp-action="Index" class="btn btn-secondary w-100">
+                                Regresar
+                            </a>
+                        </div>
+
+                        <div class="col-12">
+                            <label class="form-label">Estado del Préstamo</label>
+                            <select asp-for="STATUS" class="form-control">
+                                <option value="true">Activo</option>
+                                <option value="false">Inactivo</option>
+                            </select>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- COLUMNA DERECHA -->
+                <div class="col-md-5 text-center">
+                    @if (!string.IsNullOrEmpty(portada))
+                    {
+                        <img src="@portada"
+                             class="img-fluid rounded shadow"
+                             style="max-height:420px" />
+                    }
+                    else
+                    {
+                        <div class="text-muted mt-5">
+                            No hay imagen disponible
+                        </div>
+                    }
+                </div>
+            </div>
+        </form>
+
+        <hr />
+
+        <!-- TABLA FECHAS REGISTRADAS -->
+        <h5 class="mt-3">Fechas registradas</h5>
+        <table class="table table-sm table-bordered">
+            <thead class="table-light">
+                <tr>
+                    <th>Inicio</th>
+                    <th>Cierre</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (loanDates.Any())
+                {
+                    foreach (var d in loanDates)
+                    {
+                        <tr>
+                            <td>
+                                <input type="date"
+                                       class="form-control"
+                                       value="@d.START_DATE.ToString("yyyy-MM-dd")"
+                                       disabled />
+                            </td>
+                            <td>
+                                <input type="date"
+                                       class="form-control"
+                                       value="@d.END_DATE.ToString("yyyy-MM-dd")"
+                                       disabled />
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="2" class="text-center text-muted">
+                            No hay fechas registradas para este préstamo
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById("mostrarFechas").addEventListener("click", function () {
+            const bloque = document.getElementById("bloqueFechas");
+            bloque.style.display = bloque.style.display === "none" ? "block" : "none";
+        });
+    </script>
+}

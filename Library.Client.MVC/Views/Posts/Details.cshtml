@@ -1,0 +1,136 @@
+@using Library.DataAccess.Domain
+@model Library.DataAccess.Domain.Posts
+@{
+    ViewData["TITLE"] = Model.TITLE;
+    ViewBag.ShowNavbar = false;
+    var totalImgs = Model.IMAGES.Count;
+    var postDocs = ViewBag.PostDocs as List<PostsDocs>;
+    Layout = "~/Views/Shared/_LayoutUsers.cshtml";
+    ViewBag.ShowHeader = true;
+    ViewBag.HeaderTitle = "Detalles";
+}
+<header>
+    <!-- Incluir la fuente Poppins y otras fuentes necesarias -->
+    <link href="https://fonts.googleapis.com/css?family=Poppins:400,600,700&family=Inria+Sans&display=swap" rel="stylesheet" />
+    <!-- Incluir Bootstrap Icons si es necesario -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+</header>
+
+<!-- Post Detalle -->
+<div class="container-fluid py-5">
+    <div class="container py-5">
+        <div class="row align-items-center">
+            <!-- Columna Información -->
+            <div class="col-lg-6 mb-4 mb-lg-0">
+                <div class="section-title position-relative mb-4">
+                    <h6 class="d-inline-block position-relative text-secondary text-uppercase pb-2" style="font-family: 'Poppins', sans-serif; font-weight: 600;">
+                        Publicación
+                    </h6>
+                    <!-- Aplicar estilos de Poppins y negrita al título -->
+                    <h1 class="display-6" style="font-family: 'Poppins', sans-serif; font-weight: 600; font-size: 2.2rem;">
+                        @Model.TITLE
+                    </h1>
+                </div>
+                <small class="text-muted d-block mb-4" style="font-size: 16px; font-family: 'Poppins', sans-serif;">
+                    Publicado el @Model.CREATED_AT.ToShortDateString()
+                </small>
+                <!-- Contenido de la publicación -->
+                <div class="mb-4" style="font-size: 17px; line-height: 1.6; font-family: 'Poppins', sans-serif;">
+                    @Html.Raw(Model.CONTENT)
+                </div>
+                <!-- Documentos Adjuntos -->
+                <div class="mb-4">
+                    @if (postDocs != null && postDocs.Count > 0)
+                    {
+                        <h5 class="mb-3" style="font-family: 'Poppins', sans-serif; font-weight: 600;">
+                            📂 Documentos Adjuntos
+                        </h5>
+                        <ul class="list-unstyled">
+                            @foreach (var doc in postDocs)
+                            {
+                                <li class="mb-2">
+                                    <a href="@doc.Path" target="_blank" class="text-decoration-none btn btn-outline-primary btn-sm" style="font-family: 'Poppins', sans-serif;">
+                                        📄 Descargar Documento
+                                    </a>
+                                </li>
+                            }
+                        </ul>
+                    }
+                    else
+                    {
+                        <p class="text-muted" style="font-family: 'Poppins', sans-serif;">No hay documentos adjuntos.</p>
+                    }
+                </div>
+                <!-- Botón volver -->
+                <div class="mt-4">
+                    <a asp-controller="Posts" asp-action="Index" class="btn btn-secondary btn-lg" style="font-family: 'Poppins', sans-serif; font-weight: 600;">
+                        <i class="fas fa-arrow-left"></i> Volver a Publicaciones
+                    </a>
+                </div>
+            </div>
+            <!-- Columna Carrusel -->
+            <div class="col-lg-6">
+                @if (Model.IMAGES.Count > 0)
+                {
+                    <div class="owl-carousel testimonial-carousel">
+                        @foreach (var img in Model.IMAGES)
+                        {
+                            <div class="text-center p-3">
+                                <img class="img-fluid rounded shadow"
+                                     src="@img.PATH"
+                                     alt="Imagen publicación"
+                                     loading="lazy"
+                                     style="cursor:pointer; max-height: 400px; width: auto; object-fit: contain;"
+                                     onclick="openModal('@img.PATH')">
+                            </div>
+                        }
+                    </div>
+                }
+                else
+                {
+                    <div class="text-center text-muted">
+                        <i class="fas fa-image fa-5x mb-3 opacity-25"></i>
+                        <p style="font-family: 'Poppins', sans-serif;">No hay imágenes disponibles</p>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para imágenes -->
+<div id="imageModal" class="modal" onclick="closeModal()" style="display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.8);">
+    <span class="modal-close" style="position: absolute; top: 15px; right: 35px; color: #f1f1f1; font-size: 40px; font-weight: bold; cursor: pointer; font-family: 'Poppins', sans-serif;">&times;</span>
+    <img class="modal-content" id="modalImage" style="margin: auto; display: block; max-width: 90%; max-height: 90%; margin-top: 2%;">
+</div>
+
+<script>
+    $(function () {
+        $('.testimonial-carousel').owlCarousel({
+            items: 1,
+            loop: true,
+            nav: true,
+            dots: true,
+            autoplay: false,
+            autoHeight: false,
+            smartSpeed: 600,
+            navText: ['<i class="fa fa-chevron-left"></i>', '<i class="fa fa-chevron-right"></i>']
+        });
+    });
+
+    function openModal(imageSrc) {
+        document.getElementById('imageModal').style.display = 'block';
+        document.getElementById('modalImage').src = imageSrc;
+    }
+
+    function closeModal() {
+        document.getElementById('imageModal').style.display = 'none';
+    }
+
+    // Cerrar modal con ESC
+    document.addEventListener('keydown', function(event) {
+        if (event.key === 'Escape') {
+            closeModal();
+        }
+    });
+</script>

@@ -1,0 +1,183 @@
+﻿@model IEnumerable<Library.DataAccess.Domain.LoanTypes>
+
+@{
+    ViewData["Title"] = "Index";
+    int numPage = 1;
+    int numRegistros = 0;
+    int numRegistrosPorPage = 10;
+    int[] tops = { 10, 20, 50, 100, 500, 1000, 10000, -1 };
+    int topActual = Convert.ToInt32(ViewBag.Top);
+}
+
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+<style>
+    #contenedor-principal {
+        border-radius: 1rem;
+    }
+
+    #txt1 {
+        font-family: 'Poppins', sans-serif;
+        font-weight: 600;
+    }
+
+    #btn-create {
+        transition: all 0.3s ease;
+    }
+
+        #btn-create:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.2);
+        }
+
+    .anchoAccionesLibro > div {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: nowrap;
+    }
+
+    .anchoAccionesLibro .btn {
+        flex: 1 1 0;
+        white-space: nowrap;
+    }
+    @@media (max-width: 768px) {
+        #btn-create
+
+    {
+        width: 100% !important;
+        margin-bottom: 15px;
+    }
+
+    .anchoAccionesLibro > div {
+        flex-wrap: wrap;
+        gap: 6px;
+        flex-direction: column;
+        align-items: stretch;
+    }
+
+    .anchoAccionesLibro .btn {
+        flex: none;
+        width: 100% !important;
+        margin-bottom: 5px;
+    }
+
+    table.table td, table.table th {
+        font-size: 14px;
+        white-space: nowrap;
+    }
+
+    }
+</style>
+
+<div class="card" id="contenedor-principal">
+    <div class="card-body">
+        <h1 id="txt1">Tipos de Préstamos</h1>
+
+        <div class="row g-2 mb-3 align-items-center">
+            <div class="col-12 col-md-auto">
+                <a asp-action="Create" class="btn btn-success w-100" id="btn-create">
+                    <i class="bi bi-plus-square"></i> Crear Nuevo
+                </a>
+            </div>
+        </div>
+
+        <hr />
+
+        <div class="table-responsive">
+            <table id="customers" class="table">
+                <thead>
+                    <tr>
+                        <th>@Html.DisplayNameFor(model => model.TYPES_ID)</th>
+                        <th>@Html.DisplayNameFor(model => model.TYPES_NAME)</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.TYPES_ID</td>
+                            <td>@item.TYPES_NAME</td>
+                            <td class="anchoAccionesLibro">
+                                <div>
+                                    <a href="@Url.Action("Edit", new { id = item.TYPES_ID })" class="btn btn-info" style="background: #1D4ED8">
+                                        <i class="bi bi-pencil-square"></i> Editar
+                                    </a>
+                                    <a href="javascript:void(0)" onclick="confirmDelete(@item.TYPES_ID)" class="btn btn-danger" style="background-color: #EF4444">
+                                        <i class="bi bi-trash3"></i> Eliminar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+
+                        numRegistros++;
+                        if (numRegistros == numRegistrosPorPage)
+                        {
+                            numPage++;
+                            numRegistros = 0;
+                        }
+                    }
+                    @if (numRegistros == 0) { numPage--; }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<form id="antiForgeryForm" style="display:none;">
+    @Html.AntiForgeryToken()
+</form>
+
+<script>
+    function confirmDelete(typeId) {
+        Swal.fire({
+            title: '¿Estás seguro?',
+            text: "¡No podrás revertir esto!",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#EF4444',
+            cancelButtonColor: '#6c757d',
+            confirmButtonText: 'Sí, eliminar',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                fetch(`/LoanTypes/Delete/${typeId}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'RequestVerificationToken': document.querySelector('input[name="__RequestVerificationToken"]').value
+                    }
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (data.success) {
+                        Swal.fire('¡Eliminado!', data.message, 'success').then(() => location.reload());
+                    } else {
+                        Swal.fire('Error', data.message, 'error');
+                    }
+                })
+                .catch(error => {
+                    Swal.fire('Error', 'Ocurrió un error al intentar eliminar.', 'error');
+                });
+            }
+        });
+    }
+</script>
+<script>
+    $(document).ready(function() {
+        @if (TempData["CreateSuccess"] != null && (bool)TempData["CreateSuccess"])
+        {
+            <text>
+                Swal.fire({
+                    icon: 'success',
+                    title: '¡Éxito!',
+                    text: 'Tipo de Prestamo creado correctamente.',
+                    confirmButtonColor: '#3085d6',
+                    confirmButtonText: 'Aceptar'
+                });
+            </text>
+        }
+    });
+</script>

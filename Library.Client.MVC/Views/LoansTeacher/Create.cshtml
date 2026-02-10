@@ -1,0 +1,354 @@
+﻿@model Library.DataAccess.Domain.LoansTeacher
+
+@{
+    ViewData["Title"] = "Crear Préstamo Docente";
+    // Casteo de la lista de tipos de préstamo para el Select
+    List<Library.DataAccess.Domain.LoanTypes> loanTypes = ViewBag.LoanTypes as List<Library.DataAccess.Domain.LoanTypes>;
+}
+
+@* Iconos de Bootstrap *@
+<link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css" rel="stylesheet">
+
+<style>
+    /* Estilos para contenedores de sugerencias y diseño de tarjeta */
+    #suggestionsContainerLibros, #suggestionsContainerDocentes {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        background: white;
+        border: 1px solid #ddd;
+        z-index: 1000;
+        max-height: 200px;
+        overflow-y: auto;
+        display: none;
+    }
+
+    .suggestion-item:hover {
+        background-color: #f0f0f0;
+        cursor: pointer;
+    }
+
+    .card {
+        border-radius: 15px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+    }
+
+    .form-label {
+        font-weight: 600;
+        color: #444;
+    }
+</style>
+
+<div class="row">
+    <div class="col-md-12 grid-margin stretch-card">
+        <div class="card">
+            <div class="card-body">
+                <h4 class="card-title text-center" style="font-family: 'Poppins', sans-serif; font-weight: 600; color: #0d6efd;">
+                    <i class="bi bi-book-half"></i> Registro de Nuevo Préstamo General
+                </h4>
+                <hr />
+
+                @* Resumen de errores del servidor *@
+                <div asp-validation-summary="ModelOnly" class="alert alert-danger shadow-sm"></div>
+
+                <form asp-controller="LoansTeacher" asp-action="Create" id="formPrestamo" method="post">
+                    @Html.AntiForgeryToken()
+
+                    @* --- SECCIÓN 1: DATOS DEL PERSONAL (DOCENTE) --- *@
+                    <div class="row">
+                        @* CAMPOS OCULTOS CRÍTICOS: Se llenan vía JavaScript al seleccionar *@
+                        <input asp-for="PERSONAL_ID" type="hidden" id="txtIdDocente" />
+                        <input asp-for="EMAIL" type="hidden" id="hdnEmailDocente" />
+
+                        <div class="mb-3 col-md-6">
+                            <label class="form-label">Correo Institucional (Personal)</label>
+                            <div class="input-group">
+                                <span class="input-group-text bg-primary text-white"><i class="bi bi-envelope-at"></i></span>
+                                <input type="text" class="form-control" id="txtCorreoDocenteMostrar" readonly placeholder="Busque y seleccione un personal">
+                                <button type="button" class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#mdlBuscarDocentes">
+                                    <i class="bi bi-search"></i> Buscar Personal
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 col-md-6">
+                            <label asp-for="PERSONALNAME" class="form-label">Nombre del Personal</label>
+                            <input asp-for="PERSONALNAME" type="text" class="form-control bg-light" id="txtNombreDocente" readonly placeholder="Se llenará automáticamente" />
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label asp-for="LENDER_CONTACT" class="form-label">Teléfono de Contacto</label>
+                            <input asp-for="LENDER_CONTACT" type="text" class="form-control bg-light" id="txtTelefonoDocente" readonly />
+                        </div>
+                        <div class="mb-3 col-md-6">
+                            <label asp-for="ROL" class="form-label">Rol / Cargo</label>
+                            <input asp-for="ROL" type="text" class="form-control bg-light" id="txtRol" readonly />
+                        </div>
+                    </div>
+
+                    @* --- SECCIÓN 2: DATOS DEL LIBRO Y PRÉSTAMO --- *@
+                    <div class="row mt-3">
+                        <div class="mb-3 col-md-6">
+                            <label class="form-label">Libro Solicitado</label>
+                            @* CAMPO OCULTO DEL ID DEL LIBRO *@
+                            <input asp-for="ID_BOOK" type="hidden" id="idBook" />
+                            <div class="input-group">
+                                <span class="input-group-text bg-info text-white"><i class="bi bi-journal-bookmark"></i></span>
+                                <input type="text" class="form-control" id="txtTitulo" readonly placeholder="Busque y seleccione un libro">
+                                <button type="button" class="btn btn-info text-white" data-bs-toggle="modal" data-bs-target="#mdlBuscarLibros">
+                                    <i class="bi bi-search"></i> Buscar Libro
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="mb-3 col-md-6">
+                            <label asp-for="ID_TYPE" class="form-label">Modalidad de Préstamo</label>
+                            <select asp-for="ID_TYPE" class="form-select border-primary" required>
+                                <option value="">-- Seleccione Tipo --</option>
+                                @if (loanTypes != null)
+                                {
+                                    foreach (var item in loanTypes)
+                                    {
+                                        <option value="@item.TYPES_ID">@item.TYPES_NAME</option>
+                                    }
+                                }
+                            </select>
+                            <span asp-validation-for="ID_TYPE" class="text-danger"></span>
+                        </div>
+                    </div>
+
+                    @* --- SECCIÓN 3: FECHAS --- *@
+                    <div class="row">
+                        <div class="mb-3 col-md-6">
+                            <label class="form-label">Fecha de Inicio del Préstamo</label>
+                            <input type="date"
+                                   name="fechaInicio"
+                                   class="form-control"
+                                   id="fechaInicio"
+                                   required />
+                        </div>
+
+                        <div class="mb-3 col-md-6">
+                            <label class="form-label">Fecha de Devolución (Cierre)</label>
+                            <input type="date"
+                                   name="fechaCierre"
+                                   class="form-control"
+                                   id="fechaCierre"
+                                   required />
+                        </div>
+                    </div>
+
+
+                    <div class="d-flex justify-content-center mt-5">
+                        <button type="submit" class="btn btn-success btn-lg me-3 px-5 shadow">
+                            <i class="bi bi-floppy"></i> GUARDAR PRÉSTAMO
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary btn-lg px-5 shadow">
+                            <i class="bi bi-arrow-left-circle"></i> REGRESAR
+                        </a>
+                    </div>
+
+                    @* ==========================================
+                       MODAL BUSCAR PERSONAL
+                       ========================================== *@
+                    <div class="modal fade" id="mdlBuscarDocentes" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header bg-primary text-white">
+                                    <h5 class="modal-title"><i class="bi bi-people"></i> Buscar Personal Institucional</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="input-group mb-3 shadow-sm">
+                                        <input type="text" class="form-control" id="txtBusquedaCorreo" placeholder="Escriba el correo del personal...">
+                                        <button type="button" id="btnEjecutarBusquedaDocente" class="btn btn-primary">
+                                            <i class="bi bi-search"></i> Consultar
+                                        </button>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover table-bordered" id="tablaDocs" style="display:none;">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>Correo</th>
+                                                    <th>Nombre Completo</th>
+                                                    <th>Acción</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    @* ==========================================
+                       MODAL BUSCAR LIBROS
+                       ========================================== *@
+                    <div class="modal fade" id="mdlBuscarLibros" tabindex="-1" aria-hidden="true">
+                        <div class="modal-dialog modal-lg">
+                            <div class="modal-content">
+                                <div class="modal-header bg-info text-white">
+                                    <h5 class="modal-title"><i class="bi bi-journal-text"></i> Catálogo de Libros</h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                                </div>
+                                <div class="modal-body">
+                                    <div class="input-group mb-3 shadow-sm">
+                                        <input type="text" class="form-control" id="txtBusquedaLibro" placeholder="Escriba el título del libro...">
+                                        <button type="button" id="btnEjecutarBusquedaLibro" class="btn btn-info text-white">
+                                            <i class="bi bi-search"></i> Buscar
+                                        </button>
+                                    </div>
+                                    <div class="table-responsive">
+                                        <table class="table table-hover table-bordered" id="tablaLibros" style="display:none;">
+                                            <thead class="table-dark">
+                                                <tr>
+                                                    <th>Título</th>
+                                                    <th>Autor</th>
+                                                    <th>Acción</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody></tbody>
+                                        </table>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+
+    <script>
+        $(document).ready(function() {
+
+            // 1. LÓGICA PARA BUSCAR DOCENTE EN API EXTERNA / DB
+            $('#btnEjecutarBusquedaDocente').click(function() {
+                let correo = $('#txtBusquedaCorreo').val();
+                if(correo.trim() === "") {
+                    Swal.fire('Escribe algo', 'Ingresa un correo para buscar', 'info');
+                    return;
+                }
+
+                $.get('/Personal/BuscarDocente', { correo: correo }, function(data) {
+                    let html = '';
+                    if(data.length === 0) {
+                        html = '<tr><td colspan="3" class="text-center text-danger">No se encontraron resultados</td></tr>';
+                    } else {
+                        data.forEach(d => {
+                            html += `<tr>
+                                <td>${d.correo}</td>
+                                <td>${d.nombreCompleto}</td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-success btn-sel-doc"
+                                        data-id="${d.id}"
+                                        data-nombre="${d.nombreCompleto}"
+                                        data-correo="${d.correo}"
+                                        data-tel="${d.telefono}"
+                                        data-rol="${d.rol}">
+                                        <i class="bi bi-check-lg"></i> Seleccionar
+                                    </button>
+                                </td>
+                            </tr>`;
+                        });
+                    }
+                    $('#tablaDocs tbody').html(html);
+                    $('#tablaDocs').fadeIn();
+                });
+            });
+
+            // Acción al presionar "Seleccionar" en Docente
+            $(document).on('click', '.btn-sel-doc', function() {
+                const id = $(this).data('id');
+                const correo = $(this).data('correo');
+                const nombre = $(this).data('nombre');
+                const tel = $(this).data('tel');
+                const rol = $(this).data('rol');
+
+                // Llenar campos visibles y ocultos
+                $('#txtIdDocente').val(id);
+                $('#hdnEmailDocente').val(correo); // ESTO EVITA EL ERROR DE EMAIL VACÍO
+                $('#txtCorreoDocenteMostrar').val(correo);
+                $('#txtNombreDocente').val(nombre);
+                $('#txtTelefonoDocente').val(tel);
+                $('#txtRol').val(rol);
+
+                $('#mdlBuscarDocentes').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Docente seleccionado', showConfirmButton: false, timer: 1000 });
+            });
+
+            // 2. LÓGICA PARA BUSCAR LIBROS
+            $('#btnEjecutarBusquedaLibro').click(function() {
+                let titulo = $('#txtBusquedaLibro').val();
+                if(titulo.trim() === "") {
+                    Swal.fire('Escribe algo', 'Ingresa un título para buscar', 'info');
+                    return;
+                }
+
+                $.get('/Books/BuscarLibro', { titulo: titulo }, function(data) {
+                    let html = '';
+                    if(data.length === 0) {
+                        html = '<tr><td colspan="3" class="text-center text-danger">Libro no disponible</td></tr>';
+                    } else {
+                        data.forEach(l => {
+                            html += `<tr>
+                                <td>${l.title}</td>
+                                <td>${l.authorName}</td>
+                                <td>
+                                    <button type="button" class="btn btn-sm btn-success btn-sel-lib"
+                                        data-id="${l.booK_ID}"
+                                        data-titulo="${l.title}">
+                                        <i class="bi bi-check-lg"></i> Seleccionar
+                                    </button>
+                                </td>
+                            </tr>`;
+                        });
+                    }
+                    $('#tablaLibros tbody').html(html);
+                    $('#tablaLibros').fadeIn();
+                });
+            });
+
+            // Acción al presionar "Seleccionar" en Libro
+            $(document).on('click', '.btn-sel-lib', function() {
+                const id = $(this).data('id');
+                const titulo = $(this).data('titulo');
+
+                $('#idBook').val(id);
+                $('#txtTitulo').val(titulo);
+
+                $('#mdlBuscarLibros').modal('hide');
+                Swal.fire({ icon: 'success', title: 'Libro seleccionado', showConfirmButton: false, timer: 1000 });
+            });
+
+            // 3. VALIDACIÓN PREVENTIVA ANTES DE ENVIAR AL CONTROLADOR
+            $('#formPrestamo').submit(function(e) {
+                const idDoc = $('#txtIdDocente').val();
+                const idLib = $('#idBook').val();
+                const idTipo = $('#ID_TYPE').val();
+                const fInicio = $('#fechaInicio').val();
+
+                if (!idDoc || !idLib || !idTipo || !fInicio) {
+                    e.preventDefault();
+                    Swal.fire({
+                        title: '¡Faltan Datos!',
+                        text: 'Asegúrate de haber seleccionado un Docente y un Libro mediante los botones de búsqueda.',
+                        icon: 'warning',
+                        confirmButtonColor: '#0d6efd'
+                    });
+                }
+            });
+        });
+    </script>
+}
